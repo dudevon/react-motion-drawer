@@ -1,19 +1,11 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { Motion, spring } from "react-motion";
-import Hammer from "react-hammerjs";
-import isFunction from "1-liners/isFunction";
-import styles from "./styles";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Motion, spring } from 'react-motion';
+import Hammer from 'react-hammerjs';
+import isFunction from '1-liners/isFunction';
+import styles from './styles';
 
-const {
-  bool,
-  number,
-  array,
-  object,
-  string,
-  func,
-  oneOfType
-} = PropTypes;
+const { bool, number, array, object, string, func, oneOfType } = PropTypes;
 
 export default class Drawer extends React.Component {
   static propTypes = {
@@ -46,11 +38,11 @@ export default class Drawer extends React.Component {
     noTouchOpen: false,
     noTouchClose: false,
     onChange: () => {},
-    overlayColor: "rgba(0, 0, 0, 0.4)",
+    overlayColor: 'rgba(0, 0, 0, 0.4)',
     config: { stiffness: 350, damping: 40 },
     open: false,
     width: 300,
-    height: "100%",
+    height: '100%',
     handleWidth: 20,
     peakingWidth: 50,
     panTolerance: 50,
@@ -70,31 +62,31 @@ export default class Drawer extends React.Component {
   }
 
   state = {
-    currentState: "CLOSED"
+    currentState: 'CLOSED'
   };
 
   isState = s => s === this.state.currentState;
-  isClosed = () => this.isState("CLOSED");
-  isOpen = () => this.isState("OPEN");
-  isOpening = () => this.isState("IS_OPENING");
-  isClosing = () => this.isState("IS_CLOSING");
+  isClosed = () => this.isState('CLOSED');
+  isOpen = () => this.isState('OPEN');
+  isOpening = () => this.isState('IS_OPENING');
+  isClosing = () => this.isState('IS_CLOSING');
 
   peak() {
     const { onChange, handleWidth } = this.props;
     onChange(false);
-    return this.setState({ currentState: "PEAK", x: handleWidth });
+    return this.setState({ currentState: 'PEAK', x: handleWidth });
   }
 
   close() {
     this.props.onChange(false);
-    return this.setState({ currentState: "CLOSED", x: 0 });
+    return this.setState({ currentState: 'CLOSED', x: 0 });
   }
 
   open() {
     const { onChange, width } = this.props;
     onChange(true);
 
-    return this.setState({ currentState: "OPEN", x: this.calculateWidth() });
+    return this.setState({ currentState: 'OPEN', x: this.calculateWidth() });
   }
 
   isClosingDirection(direction) {
@@ -106,14 +98,14 @@ export default class Drawer extends React.Component {
   }
 
   closingOrOpening(direction) {
-    return this.isClosingDirection(direction) ? "IS_CLOSING" : "IS_OPENING";
+    return this.isClosingDirection(direction) ? 'IS_CLOSING' : 'IS_OPENING';
   }
 
   inPanTolerance(deltaX) {
     const { currentState } = this.state;
     const { panTolerance } = this.props;
 
-    return Math.abs(deltaX) <= panTolerance && currentState === "OPEN";
+    return Math.abs(deltaX) <= panTolerance && currentState === 'OPEN';
   }
 
   onPress = e => {
@@ -156,8 +148,8 @@ export default class Drawer extends React.Component {
       PEAK: closingOrOpening,
       IS_OPENING: closingOrOpening,
       IS_CLOSING: closingOrOpening,
-      OPEN: "IS_CLOSING",
-      CLOSED: "PEAK"
+      OPEN: 'IS_CLOSING',
+      CLOSED: 'PEAK'
     };
 
     this.setState({
@@ -173,56 +165,33 @@ export default class Drawer extends React.Component {
 
   calculateWidth = () => {
     const width = this.props.width;
-    return /\%/.test(width)
-      ? document.body.clientWidth * (width.match(/\d*/) / 100)
-      : width;
+    return /\%/.test(width) ? document.body.clientWidth * (width.match(/\d*/) / 100) : width;
   };
 
   render() {
-    const {
-      config,
-      drawerStyle,
-      className,
-      overlayClassName,
-      width,
-      children,
-      offset
-    } = this.props;
+    const { config, drawerStyle, className, overlayClassName, width, children, offset } = this.props;
     const { currentState, x } = this.state;
 
     return (
-      <Motion style={{ myProp: spring(Math.min(x + offset || 0, this.calculateWidth()), config) }}>
+      <Motion style={{ myProp: spring(_state.currentState === 'OPEN' ? this.calculateWidth() : 0, config) }}>
         {interpolated => {
-          const { drawer, transform, overlay } = styles(
-            interpolated.myProp,
-            this.props
-          );
+          const { drawer, transform, overlay } = styles(interpolated.myProp, this.props);
 
-          let computedStyle = {...drawer, ...drawerStyle };
-          if (interpolated.myProp > 0) computedStyle.display = "block";
-          else computedStyle.display = "none";
+          let computedStyle = { ...drawer, ...drawerStyle };
+          if (interpolated.myProp > 0) computedStyle.display = 'block';
+          else computedStyle.display = 'none';
 
           return (
-            <Hammer
-              onPress={this.onPress}
-              onPressUp={this.onPressUp}
-              onPan={this.onPan}
-              direction={Hammer.DIRECTION_HORIZONTAL}
-            >
+            <Hammer onPress={this.onPress} onPressUp={this.onPressUp} onPan={this.onPan} direction={Hammer.DIRECTION_HORIZONTAL}>
               <div style={transform}>
                 <div className={className} style={computedStyle}>
-                  {isFunction(children)
-                    ? children(interpolated.myProp)
-                    : children}
+                  {isFunction(children) ? children(interpolated.myProp) : children}
 
-                  {!this.isClosed() &&
-                    <Hammer
-                      style={overlay}
-                      className={overlayClassName}
-                      onTap={this.onOverlayTap}
-                    >
+                  {!this.isClosed() && (
+                    <Hammer style={overlay} className={overlayClassName} onTap={this.onOverlayTap}>
                       <span />
-                    </Hammer>}
+                    </Hammer>
+                  )}
                 </div>
               </div>
             </Hammer>
